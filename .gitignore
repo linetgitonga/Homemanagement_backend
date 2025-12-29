@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+.eggs/
+
+# Django
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+media/
+staticfiles/
+
+# Environments
+.env
+.env.*
+.venv/
+venv/
+ENV/
+
+# VSCode
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Migrations
+**/migrations/**/__pycache__/
+**/migrations/*.pyc
+
+# Coverage
+htmlcov/
+.coverage
+.tox/
+
+# Test
+*.pytest_cache/
+
+# Others
+*.bak
+*.swp
+*.swo
+.idea/
+
+# Node
+node_modules/
