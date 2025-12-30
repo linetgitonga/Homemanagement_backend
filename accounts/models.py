@@ -8,6 +8,8 @@ class User(AbstractUser):
     phone = models.CharField(max_length=15, unique=True, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     preferred_language = models.CharField(max_length=10, default='en')
+    first_name = models.CharField(max_length=150, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

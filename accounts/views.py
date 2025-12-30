@@ -9,6 +9,47 @@ from .serializers import (
     UserSerializer, HouseholdSerializer, UserNotificationPreferencesSerializer, 
     HouseholdMembershipSerializer, ChangePasswordSerializer
 )
+from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
+from rest_framework import serializers
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+    confirm_password = serializers.CharField(write_only=True, required=True)
+    first_name = serializers.CharField(required=False, allow_blank=True)
+    last_name = serializers.CharField(required=False, allow_blank=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'phone', 'password', 'confirm_password', 'first_name', 'last_name')
+
+    def validate(self, data):
+        if data['password'] != data['confirm_password']:
+            raise serializers.ValidationError({"confirm_password": "Passwords do not match."})
+        return data
+
+    def create(self, validated_data):
+        validated_data.pop('confirm_password')
+        first_name = validated_data.pop('first_name', '')
+        last_name = validated_data.pop('last_name', '')
+        user = User.objects.create_user(**validated_data)
+        user.first_name = first_name
+        user.last_name = last_name
+        user.save()
+        return user
+
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({"detail": "Registration successful."}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
@@ -137,3 +178,27 @@ class HouseholdViewSet(ModelViewSet):
                 {'detail': 'Member not found in this household'}, 
                 status=status.HTTP_404_NOT_FOUND
             )
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                return Response({"detail": "If the email exists, a reset link will be sent."}, status=status.HTTP_200_OK)
+            # Generate token and uid
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            reset_link = f"http://localhost:3000/password-reset-confirm/{uid}/{token}/"
+            # For dev: print to console
+            print(f"Password reset link for {email}: {reset_link}")
+            # In production, send email:
+            # send_mail('Password Reset', f'Use this link: {reset_link}', 'no-reply@ledger.com', [email])
+            return Response({"detail": "If the email exists, a reset link will be sent."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

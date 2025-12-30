@@ -92,7 +92,11 @@ else:
     # Default to common local addresses when running in development (DEBUG=True).
     # When DEBUG=False this will be an empty list and Django will require
     # ALLOWED_HOSTS to be set explicitly (safer for production).
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1'] if DEBUG else []
+    ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', 'enginous-lucien-umbrageous.ngrok-free.dev'] if DEBUG else []
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://enginous-lucien-umbrageous.ngrok-free.dev"
+]
 
 
 
@@ -266,7 +270,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://10.0.0.1:3000",
     "http://10.8.9.195:3000",
-    "http://192.168.137.1:3000"
+    "http://192.168.137.1:3000",
+    "https://enginous-lucien-umbrageous.ngrok-free.dev",
 ]
 CORS_ALLOWED_ORIGIN_REGEXES = [
     r"^https?://10\.\d+\.\d+\.\d+:3000$",

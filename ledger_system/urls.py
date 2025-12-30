@@ -7,7 +7,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenRefreshView
 from accounts.auth import CustomTokenObtainPairView
 
-from accounts.views import UserViewSet, HouseholdViewSet
+from accounts.views import UserViewSet, HouseholdViewSet, RegisterView, PasswordResetRequestView
 from finances.views import ExpenseViewSet, RefundRequestViewSet,ExpenseAttachmentViewSet, CategoryViewSet, BudgetViewSet, SubExpenseItemViewSet
 from analytics.views import ReportViewSet
 from notifications.views import NotificationViewSet
@@ -28,6 +28,8 @@ router.register(r'notifications', NotificationViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/auth/register/', RegisterView.as_view(), name='register'),
+    path('api/auth/password-reset/', PasswordResetRequestView.as_view(), name='password_reset'),
     path('api/', include(router.urls)),
     path('api/sync/push/', SyncPushView.as_view(), name='sync-push'),
     path('api/sync/pull/', SyncPullView.as_view(), name='sync-pull'),
